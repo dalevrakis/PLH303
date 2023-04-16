@@ -1,0 +1,255 @@
+-- Table: public.Program
+
+-- DROP TABLE IF EXISTS public."Program";
+
+CREATE TABLE IF NOT EXISTS public."Program"
+(
+    "ProgramID" character(50) COLLATE pg_catalog."default" NOT NULL,
+    "Duration" integer NOT NULL,
+    "Year" integer NOT NULL,
+    "NumOfParticipants" integer,
+    "MinCourses" integer NOT NULL,
+    "MinCredits" integer NOT NULL,
+    "DiplomaType" program_diploma_type NOT NULL,
+    "Obligatory" boolean NOT NULL,
+    "CommitteeNum" integer,
+    CONSTRAINT "Program_pkey" PRIMARY KEY ("ProgramID")
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Program"
+    OWNER to postgres;
+
+-- Table: public.Joins
+
+-- DROP TABLE IF EXISTS public."Joins";
+
+CREATE TABLE IF NOT EXISTS public."Joins"
+(
+    "ProgramID" character(50) COLLATE pg_catalog."default" NOT NULL,
+    amka character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Joins_pkey" PRIMARY KEY ("ProgramID", amka),
+    CONSTRAINT "Joins_ProgramID_fkey" FOREIGN KEY ("ProgramID")
+        REFERENCES public."Program" ("ProgramID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
+    CONSTRAINT "Joins_amka_fkey" FOREIGN KEY (amka)
+        REFERENCES public."Student" (amka) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Joins"
+    OWNER to postgres;
+
+
+-- Table: public.Offers
+
+-- DROP TABLE IF EXISTS public."Offers";
+
+CREATE TABLE IF NOT EXISTS public."Offers"
+(
+    course_code character(7) COLLATE pg_catalog."default" NOT NULL,
+    "ProgramID" character(50) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Offers_pkey" PRIMARY KEY (course_code, "ProgramID"),
+    CONSTRAINT "Offers_ProgramID_fkey" FOREIGN KEY ("ProgramID")
+        REFERENCES public."Program" ("ProgramID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
+    CONSTRAINT "Offers_course_code_fkey" FOREIGN KEY (course_code)
+        REFERENCES public."Course" (course_code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Offers"
+    OWNER to postgres;
+
+
+-- Table: public.Diploma
+
+-- DROP TABLE IF EXISTS public."Diploma";
+
+CREATE TABLE IF NOT EXISTS public."Diploma"
+(
+    "DiplomaNum" integer NOT NULL,
+    "ProgramID" character(50) COLLATE pg_catalog."default" NOT NULL,
+    amka character varying COLLATE pg_catalog."default" NOT NULL,
+    "DiplomaGrade" real,
+    "DiplomaTitle" character(50) COLLATE pg_catalog."default",
+    CONSTRAINT "Diploma_pkey" PRIMARY KEY ("DiplomaNum", "ProgramID", amka),
+    CONSTRAINT "Diploma_ProgramID_fkey" FOREIGN KEY ("ProgramID")
+        REFERENCES public."Program" ("ProgramID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
+    CONSTRAINT "Diploma_amka_fkey" FOREIGN KEY (amka)
+        REFERENCES public."Student" (amka) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Diploma"
+    OWNER to postgres;
+
+
+-- Table: public.Thesis
+
+-- DROP TABLE IF EXISTS public."Thesis";
+
+CREATE TABLE IF NOT EXISTS public."Thesis"
+(
+    "ThesisID" character(50) COLLATE pg_catalog."default" NOT NULL,
+    "Grade" real,
+    "Title" character(50) COLLATE pg_catalog."default",
+    amka character varying COLLATE pg_catalog."default",
+    "ProgramID" character(50) COLLATE pg_catalog."default",
+    CONSTRAINT "Thesis_pkey" PRIMARY KEY ("ThesisID"),
+    CONSTRAINT "Thesis_ProgramID_fkey" FOREIGN KEY ("ProgramID")
+        REFERENCES public."Program" ("ProgramID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
+    CONSTRAINT "Thesis_amka_fkey" FOREIGN KEY (amka)
+        REFERENCES public."Student" (amka) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Thesis"
+    OWNER to postgres;
+
+
+-- Table: public.Committee
+
+-- DROP TABLE IF EXISTS public."Committee";
+
+CREATE TABLE IF NOT EXISTS public."Committee"
+(
+    "ThesisID" character(50) COLLATE pg_catalog."default" NOT NULL,
+    amka character varying COLLATE pg_catalog."default" NOT NULL,
+    "Supervisor" boolean,
+    CONSTRAINT "Committee_pkey" PRIMARY KEY ("ThesisID", amka),
+    CONSTRAINT "Committee_ThesisID_fkey" FOREIGN KEY ("ThesisID")
+        REFERENCES public."Thesis" ("ThesisID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
+    CONSTRAINT "Committee_amka_fkey" FOREIGN KEY (amka)
+        REFERENCES public."Professor" (amka) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Committee"
+    OWNER to postgres;
+
+
+-- Table: public.ForeignLanguageProgram
+
+-- DROP TABLE IF EXISTS public."ForeignLanguageProgram";
+
+CREATE TABLE IF NOT EXISTS public."ForeignLanguageProgram"
+(
+    "ProgramID" character(50) COLLATE pg_catalog."default" NOT NULL,
+    "Language" character(50) COLLATE pg_catalog."default",
+    CONSTRAINT "ForeignLanguageProgram_pkey" PRIMARY KEY ("ProgramID"),
+    CONSTRAINT "ForeignLanguageProgram_ProgramID_fkey" FOREIGN KEY ("ProgramID")
+        REFERENCES public."Program" ("ProgramID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."ForeignLanguageProgram"
+    OWNER to postgres;
+
+-- Table: public.SeasonalProgram
+
+-- DROP TABLE IF EXISTS public."SeasonalProgram";
+
+CREATE TABLE IF NOT EXISTS public."SeasonalProgram"
+(
+    "ProgramID" character(50) COLLATE pg_catalog."default" NOT NULL,
+    "Season" semester_season_type NOT NULL,
+    CONSTRAINT "SeasonalProgram_pkey" PRIMARY KEY ("ProgramID"),
+    CONSTRAINT "SeasonalProgram_ProgramID_fkey" FOREIGN KEY ("ProgramID")
+        REFERENCES public."Program" ("ProgramID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."SeasonalProgram"
+    OWNER to postgres;
+
+
+-- Table: public.CustomUnits
+
+-- DROP TABLE IF EXISTS public."CustomUnits";
+
+CREATE TABLE IF NOT EXISTS public."CustomUnits"
+(
+    "CustomUnitID" character(50) COLLATE pg_catalog."default" NOT NULL,
+    "ProgramID" character(50) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "CustomUnits_pkey" PRIMARY KEY ("CustomUnitID"),
+    CONSTRAINT "CustomUnits_ProgramID_fkey" FOREIGN KEY ("ProgramID")
+        REFERENCES public."SeasonalProgram" ("ProgramID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."CustomUnits"
+    OWNER to postgres;
+
+
+-- Table: public.RefersTo
+
+-- DROP TABLE IF EXISTS public."RefersTo";
+
+CREATE TABLE IF NOT EXISTS public."RefersTo"
+(
+    "CustomUnitID" character(50) COLLATE pg_catalog."default" NOT NULL,
+    course_code character(7) COLLATE pg_catalog."default" NOT NULL,
+    serial_number integer NOT NULL,
+    CONSTRAINT "RefersTo_CourseRun_fkey" FOREIGN KEY (course_code, serial_number)
+        REFERENCES public."CourseRun" (course_code, serial_number) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
+    CONSTRAINT "RefersTo_CustomUnitID_fkey" FOREIGN KEY ("CustomUnitID")
+        REFERENCES public."CustomUnits" ("CustomUnitID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."RefersTo"
+    OWNER to postgres;
